@@ -4,10 +4,12 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import serializers, status
+from django.shortcuts import get_object_or_404
 
 #Models 
 from .models import PetOwner, Pet
-from .serializers import PetOwnerListSerializer, PetsListSerializer, PetOwnerSerializer,PetSerializer
+#Serializers
+from .serializers import PetOwnerListSerializer, PetsListSerializer, PetOwnerSerializer, PetsDetailSerializer
 
 
 class PetOwnersListCreate(APIView):
@@ -33,9 +35,18 @@ class PetOwnersListCreate(APIView):
     print(created_instance.__dict__)
     
     return Response({})
-    
+  
+class PetOwnerDetailApiView(APIView):
 
+    serializer_class = PetOwnerSerializer
 
+    def get(self, request, pk):
+
+        owner = get_object_or_404(PetOwner, id=pk)
+        serializer = self.serializer_class(owner)
+        return Response(serializer.data)
+      
+      
 class PetsListCreate(APIView):
     """
     View to list all pets in the system.
@@ -51,11 +62,20 @@ class PetsListCreate(APIView):
       
     def post(self, request):
 
-      serializer = PetSerializer(data=request.data)
+      serializer = PetsListSerializer(data=request.data)
       serializer.is_valid(raise_exception=True)
       created_instance = serializer.save()
     
       print(created_instance.__dict__)
     
-      return Response({})  
+      return Response({})
     
+class PetDetailApiView(APIView):
+
+    serializer_class = PetsDetailSerializer
+
+    def get(self, request, pk):
+
+      pet = get_object_or_404(Pet, id=pk)
+      serializer = self.serializer_class(Pet)
+      return Response(serializer.data)
