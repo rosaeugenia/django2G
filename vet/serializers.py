@@ -1,30 +1,70 @@
-from vet.models import PetOwner
+from django.db import models
 from rest_framework import serializers
 from .models import PetOwner, Pet
 
-class PetOwnerListSerializer(serializers.Serializer):
+
+class PetOwnersListSerializer(serializers.Serializer):
       id = serializers.IntegerField()
       first_name = serializers.CharField(max_length=255)
       last_name = serializers.CharField(max_length=255)
-      
+
+
+#class PetOwnersListSerializer(serializers.ModelSerializer):
+#      class Meta:
+#            model = PetOwner
+#            fields = ["id", "first_name", "last_name"]
+
+
 class PetOwnerSerializer(serializers.Serializer):
-      id= serializers.ReadOnlyField()
+      id = serializers.ReadOnlyField()
       first_name = serializers.CharField(max_length=255)
       last_name = serializers.CharField(max_length=255)
       address = serializers.CharField()
-      email = serializers.CharField()
-      phone = serializers.CharField()      
-      
-      def create(self, validate_data):
+      email = serializers.EmailField()
+      phone = serializers.CharField()     
+      def create(self, validated_data):
             return PetOwner.objects.create(**validated_data)
+
+
+class PetOwnerUpdateSerializer(serializers.Serializer):
+      first_name = serializers.CharField(max_length=255, required=False)
+      last_name = serializers.CharField(max_length=255, required=False)
+      address = serializers.CharField(required=False)
+      phone = serializers.CharField(required=False)
+
+def update(self, instance, validated_data):
+      instance.first_name = validated_data.get("first_name", instance.first_name)
+      instance.last_name = validated_data.get("last_name", instance.last_name)
+      instance.address = validated_data.get("address", instance.address)
+      instance.phone = validated_data.get("phone", instance.phone)
+      instance.save()
+      return instance
+
 
 class PetsListSerializer(serializers.Serializer):
       id = serializers.IntegerField()
       name = serializers.CharField(max_length=255)
       type = serializers.CharField(max_length=50)
-      
-      
-class PetsDetailSerializer(serializers.Serializer):
-      id= serializers.ReadOnlyField()
+
+
+class PetSerializer(serializers.Serializer):
+      id = serializers.ReadOnlyField()
       name = serializers.CharField(max_length=255)
-      type = serializers.CharField(max_length=50)
+      type = serializers.ChoiceField(choices=Pet.PET_TYPES)
+      owner_id = serializers.IntegerField()     
+      def create(self, validated_data):
+            return Pet.objects.create(**validated_data)
+
+
+class PetUpdateSerializer(serializers.Serializer):
+      
+      name = serializers.CharField(required=False)
+      type = serializers.CharField(required=False)
+      owner_id = serializers.IntegerField(required=False)
+      
+def update(self, instance, validated_data):
+      instance.name = validated_data.get('name', instance.name)
+      instance.type = validated_data.get('type', instance.type)
+      instance.owner_id = validated_data.get('owner_id', instance.owner_id)
+      instance.save()
+      return instance
