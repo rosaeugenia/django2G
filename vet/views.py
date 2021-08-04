@@ -1,49 +1,116 @@
-from rest_framework import status, generics
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from django.shortcuts import get_object_or_404
-from rest_framework.generics import GenericAPIView, RetrieveAPIView
-from rest_framework.mixins import ListModelMixin
-
+from rest_framework import generics
 
 # Serializers
 from .serializers import (
     # Pet Owner serializers
-    PetListSerializer,
-    PetOwnerSerializer,
-    PetOwnerUpdateSerializer,
-    PetOwnersListSerializer,
-    PetOwnerRetrieveSerializer,
-    # Pet serializers
-    PetsListSerializer,
-    PetSerializer,
-    PetUpdateSerializer
+    PetOwnerModelSerializer,
+    PetOwnersListModelSerializer,
+    #Pet
+  PetModelSerializer,
+  PetListModelSerializer,
+  PetDateListModelSerializer,
+  PetDateModelSerializer,    
 )
 
 # Models
-from .models import PetOwner, Pet
+from .models import PetOwner, Pet, PetDate
 
 
-class PetOwnersListAPIView(generics.ListAPIView):
+class PetOwnersListCreateAPIView(generics.ListCreateAPIView):
 
     queryset = PetOwner.objects.all()
-    serializer_class = PetOwnersListSerializer
-    
- 
-class PetListAPIView(generics.ListAPIView):
+    serializer_class = PetOwnersListModelSerializer
+
+    def get_queryset(self):
+
+        first_name_filter = self.request.GET.get("first_name")
+        filters = {}
+        if first_name_filter:
+            filters["first_name__icontains"] = first_name_filter
+
+        return self.queryset.filter(**filters)
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.request.method == "POST":
+            serializer_class = PetOwnerModelSerializer
+
+        return serializer_class
+  
+
+class PetListCreateAPIView(generics.ListCreateAPIView):
 
     queryset = Pet.objects.all()
-    serializer_class = PetListSerializer   
-    
-    
-class PetOwnerRetrieve(RetrieveAPIView):
-    queryset = PetOwner.objects.all()
-    serializer_class = PetOwnerRetrieveSerializer
+    serializer_class = PetListModelSerializer
 
+    def get_queryset(self):
+
+        pet_name_filter = self.request.GET.get("name")
+        filters = {}
+        if pet_name_filter:
+            filters["name__icontains"] = pet_name_filter
+
+        return self.queryset.filter(**filters)
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.request.method == "POST":
+            serializer_class = PetModelSerializer
+
+        return serializer_class   
+      
+class PetOwnersRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = PetOwner.objects.all()
+    serializer_class = PetOwnerModelSerializer
+
+
+class PetRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = Pet.objects.all()
+    serializer_class = PetModelSerializer    
   
-    
+
+class PetDateListCreateAPIView(generics.ListCreateAPIView):
+
+    queryset = PetDate.objects.all()
+    serializer_class = PetDateListModelSerializer
+
+    def get_queryset(self):
+
+        pet_filter = self.request.GET.get("pet")
+        filters = {}
+        if pet_filter:
+            filters["pet__icontains"] = pet_filter
+
+        return self.queryset.filter(**filters)
+
+    def get_serializer_class(self):
+        serializer_class = self.serializer_class
+        if self.request.method == "POST":
+            serializer_class = PetDateModelSerializer
+
+        return serializer_class  
+
+class PetDateRetrieveUpdateDestroyAPIView(generics.RetrieveUpdateDestroyAPIView):
+
+    queryset = PetDate.objects.all()
+    serializer_class = PetDateModelSerializer    
+
+def get_queryset(self):
+
+        pet_name_filter = self.request.GET.get("pet")
+        filters = {}
+        if pet_name_filter:
+            filters["pet__exact"] = pet_name_filter
+
+        return self.queryset.filter(**filters)        
+
+
 
 #class PetOwnersListCreateAPIView(APIView):
+
+
 #    """
 #    View to list all pet owners in the system.
 #    """
