@@ -3,16 +3,29 @@ from rest_framework import serializers
 from .models import PetOwner, Pet
 
 
-class PetOwnersListSerializer(serializers.Serializer):
-      id = serializers.IntegerField()
-      first_name = serializers.CharField(max_length=255)
-      last_name = serializers.CharField(max_length=255)
+#class PetOwnersListSerializer(serializers.Serializer):
+#      id = serializers.IntegerField()
+#      first_name = serializers.CharField(max_length=255)
+#      last_name = serializers.CharField(max_length=255)
 
 
-#class PetOwnersListSerializer(serializers.ModelSerializer):
-#      class Meta:
-#            model = PetOwner
-#            fields = ["id", "first_name", "last_name"]
+class PetOwnersListSerializer(serializers.ModelSerializer):
+      class Meta:
+            model = PetOwner
+            fields = ["id", "first_name", "last_name"]
+            
+            
+            
+class PetOwnerRetrieveSerializer(serializers.ModelSerializer):
+      class Meta:
+            model = PetOwner
+            fields = ("id", "first_name", "last_name", "address","email","phone")           
+            
+            
+class PetListSerializer(serializers.ModelSerializer):
+      class Meta:
+            model = Pet
+            fields = ["id", "name"]            
 
 
 class PetOwnerSerializer(serializers.Serializer):
@@ -65,6 +78,6 @@ class PetUpdateSerializer(serializers.Serializer):
 def update(self, instance, validated_data):
       instance.name = validated_data.get('name', instance.name)
       instance.type = validated_data.get('type', instance.type)
-      instance.owner_id = validated_data.get('owner_id', instance.owner_id)
+      instance.owner = validated_data.get('owner', instance.owner)
       instance.save()
       return instance
